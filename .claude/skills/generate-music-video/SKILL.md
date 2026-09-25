@@ -62,7 +62,7 @@ Diversity across the whole library matters more than any single video. The failu
 
 | Archetype | What it looks like | Camera |
 | --- | --- | --- |
-| `kinetic-type` | The words are the visuals: huge type that stacks, slices, stretches, and swaps on beats. The song title and any lyrics carry it. | static, flat |
+| `kinetic-type` | The words are the visuals: huge type that stacks, slices, stretches, and swaps on beats. Lyrics (from Gemini) and the song title carry it. | static, flat |
 | `swiss-poster` | A grid-based graphic-design poster that rebuilds itself: bold blocks, rules, numbers, one or two flat colors on paper white. | static, flat |
 | `paper-collage` | Cut paper, torn edges, halftone photo scraps and tape; pieces slide and flip in stop-motion steps (hold frames, snap movement). | static, flat |
 | `macro-material` | Extreme close-up of a material reacting to sound: ink blooming in water, molten metal, wet paint, frost, smoke through light. | slow push-in |
@@ -70,7 +70,7 @@ Diversity across the whole library matters more than any single video. The failu
 | `blueprint-diagram` | Technical drawing or schematic that draws itself: line work, measurements, callouts, exploded views of something tied to the song. | static, pans across a drawing |
 | `retro-interface` | A fake old screen: CRT terminal, 8-bit game, Windows 98 desktop, VHS menu, pager or old phone. The song plays "inside" it. | static |
 | `op-art-geometry` | Bauhaus/op-art pattern systems: stripes, checkerboards, moiré and interlocking shapes that shift phase with the music. No glowing orbs. | static, flat |
-| `illustrated-character` | A simple drawn character or creature with a tiny story across the clip (flat vector or ink line). | follows the character |
+| `illustrated-character` | A drawn figure with a tiny story across the clip, in an adult graphic-novel, ink or anime-adjacent style. Never a mascot or cartoon critter. | follows the character |
 | `nature-growth` | Something organic grows, blooms, spreads or decays in time with the song: vines, coral, mold, crystals, roots. | static or slow |
 | `cosmic-scientific` | Orbital diagrams, star charts, cells under a microscope, particle-chamber tracks; clinical labels and a scientific look. | static or slow zoom |
 | `textile-pattern` | Woven, knitted or printed pattern that unravels and re-weaves; quilt blocks, tartan, embroidery stitches. | static, flat |
@@ -80,11 +80,16 @@ Diversity across the whole library matters more than any single video. The failu
 
 Also vary these from the most recent project (check its DESIGN.md): **light vs dark canvas** (use a light canvas at least one time in three), **camera** (static/flat vs moving), and **main color**.
 
-### 4b. Write DESIGN.md
+### 4b. Rules for every concept
+
+- **Don't base the concept on the song title.** File names are working titles and are usually meaningless or misleading. Only use the title when it names something concrete and visual, such as a place or an object ("japan" can suggest Japanese type or a Tokyo palette). Titles like "luvme", "safe2" or "clams" must not drive the imagery: no hearts for a song called "luv", and no clams for "clams". Putting the title on screen as text is fine; building the visuals around its literal meaning is not.
+- **No childish or cute looks.** Avoid cartoon mascots, balloon or inflatable shapes, bouncy squash-and-stretch toys, candy or pastel-toy palettes, googly eyes, rounded bubble fonts, and anything that reads as a kids' app or a birthday card. Aim for work that could be album art, a fashion editorial, a gallery piece or a design-studio reel: stylish, confident and adult. Playful is fine; juvenile is not.
+
+### 4c. Write DESIGN.md
 
 Write `projects/<slug>/DESIGN.md` before any HTML (the HyperFrames skill requires it). The first line must be `Archetype: <name from the table>`.
 
-- `## Concept`: one paragraph. A specific idea within the archetype that comes from the song's feel and title. For example, `chum_bucket` as `tabletop-still-life` could be a greasy diner counter seen from above, with ketchup bottles and fry baskets that rearrange on the beat. Not "abstract shapes that pulse".
+- `## Concept`: one paragraph. A specific idea within the archetype that comes from **how the song sounds and feels** (Gemini's mood and texture notes, tempo, energy, key). For example, a slow, dark, detuned track as `macro-material` could be black ink bleeding through wet paper, with each 808 hit pushing a new bloom outward. Not "abstract shapes that pulse".
 - `## Colors`: 3-5 hex values with roles, taken from the mood (dark and slowed → deep, desaturated; bright pop → saturated).
 - `## Typography`: 1-2 families. Prefer the fonts the renderer has built in, which work with no setup: Montserrat, Oswald, League Gothic, Archivo Black, Space Mono, IBM Plex Mono, JetBrains Mono, Source Code Pro, Noto Sans JP (see `hyperframes-creative/references/typography.md`). For anything else, copy a `.ttf` into `projects/<slug>/fonts/` and declare it with `@font-face`, or lint fails with `font_family_without_font_face`.
 - `## Timeline`: a table mapping the clip's timeline to scenes. Scene cuts land on **downbeats**. The biggest visual change lands on the **first drop** (or the highest-energy section start when there's no drop). Breakdowns get stripped-back visuals. Scene length follows tempo: roughly 2-4 bars per scene at 30s, longer for ambient songs.
