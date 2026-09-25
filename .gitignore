@@ -1,0 +1,11 @@
+# rendered videos and song audio stay local (the songs aren't meant to be public)
+output/*
+!output/.gitkeep
+projects/*/audio.wav
+projects/*/qa/
+projects/*/renders/
+projects/*/snapshots/
+projects/*/.hyperframes/
+projects/*/beats/
+node_modules/
+__pycache__/
