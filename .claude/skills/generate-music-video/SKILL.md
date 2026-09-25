@@ -134,6 +134,7 @@ Project-specific wiring for `projects/<slug>/index.html`:
 - Audio-reactive bans (from the HyperFrames guide): no equalizer bars, spectrum analyzers, waveforms, music-note clip art, particle fields that aren't part of the scene, white strobes on every beat, or abstract pulsing orbs. Audio drives *behavior*; the scene decides *what's on screen*.
 - Text: the song title (from the filename, cleaned up) belongs somewhere, usually the intro. Keep text pulses to 3-6% scale; backgrounds can swing 10-30%.
 - Visuals must be drawn in the page with CSS, SVG, canvas or WebGL. No footage, photos or generated images. A registry block (`hyperframes-registry` skill) is fine for an effect such as a shader transition or grain.
+- **Psychedelic pass: start from `templates/psychedelic-post.js`.** Copy it into the project. It is a WebGL2 shader that runs fine without a GPU. Draw each scene to its own canvas, then every frame call `POST.render(sceneCanvasA, sceneCanvasB, params)` onto one full-frame output canvas (`POST.init(canvas)` once). The stack it covers: mirror symmetry, kaleidoscope, fractal zoom, liquid warp, morphs between two scenes (`mixT` + `mode`: noise melt, burn-through, upward smoke melt), RGB split, echo trails, neon edges, hue cycle, gradient map, solarize, grain and vignette. Read the uniform list at the top for parameter names. Every parameter must be computed from time and audio data only. The faint SVG filters used before were too weak to read as psychedelic.
 - Build one scene per `<div class="clip">` (or per sub-composition in `compositions/` if `index.html` gets unwieldy). Put the psychedelic layer on a wrapper around the scene (a filter or overlay), so it can ramp up and down without touching the scene's own animation.
 - Deterministic randomness: a seeded PRNG (mulberry32), never `Math.random()`.
 - A single large `index.html` triggers the lint warnings `composition_file_too_large` and `timeline_track_too_dense`. Both are harmless and can be ignored.
@@ -146,6 +147,8 @@ npx hyperframes lint projects/<slug>
 npx hyperframes check projects/<slug> --no-browser-gpu
 npx hyperframes snapshot projects/<slug> --at 1,<pre-drop>,<post-drop>,<mid>,<end-1> --no-end --describe false --no-browser-gpu
 ```
+
+Heavy scenes can take over 10s to load when rendering on the CPU, and `snapshot` then fails with "Navigation timeout of 10000 ms" (its `--timeout` flag doesn't change that limit). Prefix the command with `PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS=90000`.
 
 Fix every lint error and every layout and contrast issue from `check`, including contrast warnings. Then look at the snapshot PNGs in `projects/<slug>/snapshots/`, which is much cheaper than a render. Fix anything wrong and snapshot again. When the frames look right, render:
 

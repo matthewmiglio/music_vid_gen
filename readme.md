@@ -22,6 +22,7 @@ Each video is a psychedelic trip drawn entirely in code: 5-10 second scenes that
 ```
 .claude/skills/generate-music-video/SKILL.md   the project-level skill
 scripts/analyze_song.py                        song analysis tool
+templates/psychedelic-post.js                  WebGL2 psychedelic effects pass (works without a GPU)
 projects/                                      one HyperFrames project per video
 output/                                        rendered MP4s (git-ignored)
 ```
