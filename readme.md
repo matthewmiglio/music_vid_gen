@@ -12,10 +12,10 @@ What the skill does:
 
 1. **Measures the song** with `scripts/analyze_song.py`: tempo, beat grid, bars, key, chords, loudness, stereo, timbre, sections, drops, breakdowns, accent hits. It picks the best clip window (highest energy, preferring one that contains a drop, starting on a bar line) and writes per-frame bass-to-treble levels for the animation.
 2. **Listens to the song** with the `/analyze-audio` skill (Gemini) for genre, mood, vocals and visual ideas.
-3. **Picks a visual concept** and writes it to the project's `DESIGN.md`: palette, fonts, and a timeline with scene cuts on bar lines and the big change on the drop.
+3. **Picks the scenes** and writes them to the project's `DESIGN.md`: subjects, psychedelic treatment, palette, fonts, and a timeline with scene cuts on bar lines and the biggest moment on the drop.
 4. **Builds a HyperFrames project** in `projects/<song>-v<N>/`, lints and checks it, then **renders** to `output/<song>-v<N>.mp4` and spot-checks frames.
 
-Each run creates a new project, so running the same song twice gives two different videos.
+Each video is a sequence of 5-10 second real-world scenes (oceans, city timelapses, animals, weather) drawn entirely in code, with audio-driven psychedelic effects layered on top. Each run creates a new project with scenes no other video has used.
 
 ## Layout
 

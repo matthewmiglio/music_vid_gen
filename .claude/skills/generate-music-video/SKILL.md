@@ -1,6 +1,6 @@
 ---
 name: generate-music-video
-description: Turn a song file into a rendered, beat-synced HyperFrames music video. Analyzes the song (scripts/analyze_song.py + /analyze-audio), picks a visual concept that fits it, builds a new project in projects/, renders it to output/. Use when the user runs /generate-music-video <song> [length], or asks to make a music video / visualizer for a song.
+description: Turn a song file into a rendered, beat-synced HyperFrames music video made of code-drawn real-world scenes (oceans, cities, animals) with psychedelic effects on top. Analyzes the song (scripts/analyze_song.py + /analyze-audio), picks scenes that fit it, builds a new project in projects/, renders it to output/. Use when the user runs /generate-music-video <song> [length], or asks to make a music video / visualizer for a song.
 ---
 
 # generate-music-video
@@ -46,54 +46,45 @@ Sanity-check the summary before building:
 Run it on the **clip** (`audio.wav`), not the full song. It's cheaper, and it describes the part that's actually in the video:
 
 ```bash
-python "C:/Users/matt/.claude/skills/analyze-audio/analyze_audio.py" projects/<slug>/audio.wav --question "Describe this track for a music-video director: genre and subgenre, mood and emotional arc, vocal presence and delivery (and any lyrics you can make out), standout sounds, how the energy moves across the clip, and the textures, materials, colors, shapes and motions it evokes (not scenes or locations). Be concrete." > projects/<slug>/gemini-analysis.md
+python "C:/Users/matt/.claude/skills/analyze-audio/analyze_audio.py" projects/<slug>/audio.wav --question "Describe this track for a music-video director: genre and subgenre, mood and emotional arc, vocal presence and delivery (and any lyrics you can make out), standout sounds, how the energy moves across the clip, and the colors, textures, weather, landscapes, animals and natural or urban forces it evokes (e.g. a storm, a predator, a flood, a city waking up). Skip driving, roads and nightlife. Be concrete." > projects/<slug>/gemini-analysis.md
 ```
 
-(Only stdout goes to the file; token usage prints on stderr.) Treat its key, chord and plugin claims as guesses (the numbers from step 2 win). Trust it on mood, genre and texture. Ignore any settings, locations or camera moves it suggests anyway (it keeps offering "late-night driving", "wet asphalt" and neon); those lead straight to the banned journey look.
+(Only stdout goes to the file; token usage prints on stderr.) Treat its key, chord and plugin claims as guesses (the numbers from step 2 win). Trust it on mood, genre and imagery. Ignore any late-night driving, wet asphalt or neon it suggests anyway; those lead to the banned night-drive look.
 
 ## 4. Choose the concept
 
-### 4a. Pick an archetype nobody has used recently
+### 4a. The look: real scenes, drawn in code, with psychedelic effects on top
 
-Diversity across the whole library matters more than any single video. The failure to avoid: every video becoming "first-person trip at night through rain past glowing signs". Left alone, that's the default, so it's banned (see below).
+Every video is a sequence of **real-world scenes**, each lasting **5-10 seconds**: an ocean swell breaking, a city timelapse from day to night, a bear rearing up and roaring, a thunderstorm over plains, a wolf pack running through snow, a volcano erupting, whales breaching, a jet going supersonic, a forest fire, a stampede, a rocket launch, a jellyfish bloom, a desert sandstorm, the northern lights over mountains, a crowd at a stadium. The viewer should recognize what they're looking at right away.
 
-1. Run `grep -h "^Archetype:" projects/*/DESIGN.md` to see which archetypes are already used, across **all** songs.
-2. Pick one from this table that is **not** in that list. If every one has been used, pick the least-used one. You may also invent a new archetype, if it is clearly unlike everything in the table and in the used list; give it a short kebab-case name. Choose the one that best fits the song's mood from Gemini's analysis, not the easiest one.
+- **Drawn in code, never footage.** Build each scene from layered SVG, canvas 2D and/or Three.js/WebGL (the `hyperframes-animation` skill has a Three.js adapter). No stock video, no photos, no AI-generated images.
+- **Heavy animation inside the scene**, not only camera moves. The waves roll and break, clouds race, city lights switch on window by window, the bear's jaw opens, its head throws back, its breath fogs, and the ground shakes. Rig creatures from separate SVG parts (jaw, head, forelegs) that rotate around their hinges. Something in the frame is always moving.
+- **Style: cinematic illustration.** Aim for a high-end animated film or motion-design reel: depth from 3-5 parallax layers, atmosphere (fog, god rays, spray, dust, rain or snow as part of the scene), dramatic lighting, and rich gradients with grain. Not flat clip art, and not cute.
+- **Psychedelic effects on top of the scenes.** Layer one or two treatments over the real scene, driven by the audio: liquid warping (SVG `feTurbulence` + `feDisplacementMap`), kaleidoscope mirroring, chromatic RGB split, hue-shifting color maps, echo trails, solarizing, or breathing edge warps. Keep them subtle during the build-up and let them take over on the drop, so the scene melts but stays recognizable. This overrides the HyperFrames guide's "no rainbow color cycling" rule, but only as a treatment over a scene, never on its own.
+- **No frames that are purely geometric or abstract.** Every frame has a real subject in it. Geometric pattern backgrounds, op-art, floating shapes and text-only frames are out. (A title card over a live scene is fine.)
+- **Scene cuts land on downbeats**, with a transition between every scene. Count the scenes to fit: about 3-6 for a 30-second clip, more for a whole song. **Put the most spectacular moment on the first drop**, like the roar, the wave breaking or the eruption.
 
-| Archetype | What it looks like | Camera |
-| --- | --- | --- |
-| `kinetic-type` | The words are the visuals: huge type that stacks, slices, stretches, and swaps on beats. Lyrics (from Gemini) and the song title carry it. | static, flat |
-| `swiss-poster` | A grid-based graphic-design poster that rebuilds itself: bold blocks, rules, numbers, one or two flat colors on paper white. | static, flat |
-| `paper-collage` | Cut paper, torn edges, halftone photo scraps and tape; pieces slide and flip in stop-motion steps (hold frames, snap movement). | static, flat |
-| `macro-material` | Extreme close-up of a material reacting to sound: ink blooming in water, molten metal, wet paint, frost, smoke through light. | slow push-in |
-| `tabletop-still-life` | Objects on a surface seen from above (records, fruit, tools, tarot cards), rearranged beat by beat. | top-down |
-| `blueprint-diagram` | Technical drawing or schematic that draws itself: line work, measurements, callouts, exploded views of something tied to the song. | static, pans across a drawing |
-| `retro-interface` | A fake old screen: CRT terminal, 8-bit game, Windows 98 desktop, VHS menu, pager or old phone. The song plays "inside" it. | static |
-| `op-art-geometry` | Bauhaus/op-art pattern systems: stripes, checkerboards, moiré and interlocking shapes that shift phase with the music. No glowing orbs. | static, flat |
-| `illustrated-character` | A drawn figure with a tiny story across the clip, in an adult graphic-novel, ink or anime-adjacent style. Never a mascot or cartoon critter. | follows the character |
-| `nature-growth` | Something organic grows, blooms, spreads or decays in time with the song: vines, coral, mold, crystals, roots. | static or slow |
-| `cosmic-scientific` | Orbital diagrams, star charts, cells under a microscope, particle-chamber tracks; clinical labels and a scientific look. | static or slow zoom |
-| `textile-pattern` | Woven, knitted or printed pattern that unravels and re-weaves; quilt blocks, tartan, embroidery stitches. | static, flat |
-| `architectural-iso` | An isometric building, room or tiny city that assembles, lights up and rearranges. | fixed isometric |
-| `photo-sequence` | A found-photo or film-contact-sheet look: frames, sprocket holes, date stamps, flash exposures, developing prints. | static, flat |
-| `journey-pov` | Moving through a space (road, tunnel, street, corridor). **Only when every other archetype is used, and never with night + rain + neon signs.** | forward motion |
+### 4b. Vary the scenes across the library
 
-Also vary these from the most recent project (`ls -t projects | head -2`, then read its DESIGN.md): **light vs dark canvas** (use a light canvas at least one time in three), **camera** (static/flat vs moving), and **main color**.
+1. Run `grep -h "^Scenes:" projects/*/DESIGN.md` to see which subjects other videos already used, across **all** songs.
+2. Don't reuse a subject from any other project (so no second bear, no second ocean). Also vary the palette and the time of day from the most recent project (`ls -t projects | head -2`, then read its DESIGN.md).
+3. Choose subjects whose energy matches the song: a slow, heavy, dark track suggests a storm rolling in or a bear waking in a cave, while fast bright energy suggests a stampede or a city at rush hour. Use Gemini's mood and imagery notes.
 
-### 4b. Rules for every concept
+### 4c. Rules for every concept
 
-- **Don't base the concept on the song title.** File names are working titles and are usually meaningless or misleading. Only use the title when it names something concrete and visual, such as a place or an object ("japan" can suggest Japanese type or a Tokyo palette). Titles like "luvme", "safe2" or "clams" must not drive the imagery: no hearts for a song called "luv", and no clams for "clams". Putting the title on screen as text is fine; building the visuals around its literal meaning is not.
-- **No childish or cute looks.** Avoid cartoon mascots, balloon or inflatable shapes, bouncy squash-and-stretch toys, candy or pastel-toy palettes, googly eyes, rounded bubble fonts, and anything that reads as a kids' app or a birthday card. Aim for work that could be album art, a fashion editorial, a gallery piece or a design-studio reel: stylish, confident and adult. Playful is fine; juvenile is not.
+- **Don't base the concept on the song title.** File names are working titles and are usually meaningless or misleading. Only use the title when it names something concrete and visual, such as a place ("japan" can suggest a Tokyo skyline or Mount Fuji). Titles like "luvme", "safe2" or "clams" must not drive the imagery: no hearts for a song called "luv", and no clams for "clams". Putting the title on screen as text is fine.
+- **No childish or cute looks.** Avoid cartoon mascots, big-eyed cute animals, balloon or inflatable shapes, bouncy squash-and-stretch toys, candy or pastel-toy palettes and bubble fonts. The bear should be terrifying, not a teddy. Aim for album art, a film title sequence or a design-studio reel: stylish, confident and adult.
+- **No night-drive clichés:** no first-person trip down a road or tunnel at night past rain and neon signs.
 
-### 4c. Write DESIGN.md
+### 4d. Write DESIGN.md
 
-Write `projects/<slug>/DESIGN.md` before any HTML (the HyperFrames skill requires it). The first line must be `Archetype: <name from the table>`.
+Write `projects/<slug>/DESIGN.md` before any HTML (the HyperFrames skill requires it). The first line must be `Scenes: <comma-separated subjects>` (e.g. `Scenes: grizzly bear, glacier calving, aurora`). If other videos are being made at the same time, write this line first, then run the grep from 4b again before building, and change subjects if there's a clash.
 
-- `## Concept`: one paragraph. A specific idea within the archetype that comes from **how the song sounds and feels** (Gemini's mood and texture notes, tempo, energy, key). For example, a slow, dark, detuned track as `macro-material` could be black ink bleeding through wet paper, with each 808 hit pushing a new bloom outward. Not "abstract shapes that pulse".
-- `## Colors`: 3-5 hex values with roles, taken from the mood (dark and slowed → deep, desaturated; bright pop → saturated).
-- `## Typography`: 1-2 families. Prefer these fonts, which work with no setup (some are built in; the rest are fetched from Google Fonts automatically at check and render time): Montserrat, Oswald, League Gothic, Archivo Black, Space Mono, IBM Plex Mono, JetBrains Mono, Source Code Pro, Noto Sans JP (see `hyperframes-creative/references/typography.md`). For anything else, copy a `.ttf` into `projects/<slug>/fonts/` and declare it with `@font-face`, or lint fails with `font_family_without_font_face`.
-- `## Timeline`: a table mapping the clip's timeline to scenes. Scene cuts land on **downbeats**. The biggest visual change lands on the **first drop** (or the highest-energy section start when there's no drop). Breakdowns get stripped-back visuals. Scene length follows tempo: roughly 2-4 bars per scene at 30s, longer for ambient songs.
-- `## Audio mapping`: which signal drives which property (e.g. `bands[0-1]` bass → background scale, `rms` → glow, `accents` → flash or shake, `beats` → small pulse on the title, `chord_changes` → color shift).
+- `## Concept`: one paragraph on the scene sequence and the psychedelic treatment, and why they fit how the song **sounds and feels** (Gemini's notes, tempo, energy, key).
+- `## Colors`: 3-5 hex values with roles, taken from the mood.
+- `## Typography`: 1-2 families for the title and any text. Prefer these fonts, which work with no setup (some are built in; the rest are fetched from Google Fonts automatically at check and render time): Montserrat, Oswald, League Gothic, Archivo Black, Space Mono, IBM Plex Mono, JetBrains Mono, Source Code Pro, Noto Sans JP (see `hyperframes-creative/references/typography.md`). For anything else, copy a `.ttf` into `projects/<slug>/fonts/` and declare it with `@font-face`, or lint fails with `font_family_without_font_face`.
+- `## Timeline`: a table of scenes, each with start and end time (on downbeats), the subject, what moves in it, and the psychedelic level (0-3). The biggest moment lands on the **first drop** (or the highest-energy section start when there's no drop). Breakdowns get calmer shots with less treatment.
+- `## Audio mapping`: which signal drives which property (e.g. bass `bands[0-1]` → ground shake and displacement strength, `rms` → treatment intensity, `accents` → lightning or a camera jolt, `beats` → wave pulses, `chord_changes` → hue shift).
 - `## What NOT to Do`: include the audio-reactive bans below plus 2-3 concept-specific ones.
 
 ## 5. Build the composition
@@ -138,9 +129,10 @@ Project-specific wiring for `projects/<slug>/index.html`:
 - Stacked display lines need `line-height` of at least 1.1, or `check` reports text overlapping.
 - Motion that is supposed to leave the frame or overlap (wipes, fly-offs) gets flagged by `check`. Mark those elements with `data-layout-allow-overflow` / `data-layout-allow-occlusion` rather than changing the design.
 - SVG filters (lighting, blur, turbulence) on an SVG that is scaled up render blurry and blocky. Draw large shapes at their real pixel size instead of scaling a small viewBox.
-- Audio-reactive bans (from the HyperFrames guide): no equalizer bars, spectrum analyzers, waveforms, music-note clip art, generic particle fields, rainbow cycling, white strobes on every beat, or abstract pulsing orbs. Audio drives *behavior*; the concept drives *what's on screen*.
+- Audio-reactive bans (from the HyperFrames guide): no equalizer bars, spectrum analyzers, waveforms, music-note clip art, particle fields that aren't part of the scene, white strobes on every beat, or abstract pulsing orbs. Audio drives *behavior*; the scene decides *what's on screen*.
 - Text: the song title (from the filename, cleaned up) belongs somewhere, usually the intro. Keep text pulses to 3-6% scale; backgrounds can swing 10-30%.
-- Visuals must be self-contained: CSS, SVG, canvas or WebGL drawn in the page. Only use a registry block (`hyperframes-registry` skill) or generated image (`/generate-image`) if the concept really needs it; save any asset into the project folder.
+- Visuals must be drawn in the page with CSS, SVG, canvas or WebGL. No footage, photos or generated images. A registry block (`hyperframes-registry` skill) is fine for an effect such as a shader transition or grain.
+- Build one scene per `<div class="clip">` (or per sub-composition in `compositions/` if `index.html` gets unwieldy). Put the psychedelic layer on a wrapper around the scene (a filter or overlay), so it can ramp up and down without touching the scene's own animation.
 - Deterministic randomness: a seeded PRNG (mulberry32), never `Math.random()`.
 - A single large `index.html` triggers the lint warning `composition_file_too_large`. It's harmless and can be ignored.
 - `energy_per_second` is more detailed than `sections`. Check it for silence (values near 0), such as a song that ends early, so you don't animate over nothing.
@@ -171,4 +163,4 @@ mkdir -p projects/<slug>/qa && ffmpeg -y -loglevel error -ss <t> -i output/<slug
 
 ## 7. Report
 
-Tell the user: output path, clip window used (start → end in the song), BPM/key, the archetype and concept in one sentence, and how the drop is handled. Don't open the video for them; they'll open it themselves.
+Tell the user: output path, clip window used (start → end in the song), BPM/key, the scene list, the psychedelic treatment, and what happens on the drop. Don't open the video for them; they'll open it themselves.
