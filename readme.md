@@ -15,7 +15,7 @@ What the skill does:
 3. **Picks the scenes** and writes them to the project's `DESIGN.md`: subjects, psychedelic treatment, palette, fonts, and a timeline with scene cuts on bar lines and the biggest moment on the drop.
 4. **Builds a HyperFrames project** in `projects/<song>-v<N>/`, lints and checks it, then **renders** to `output/<song>-v<N>.mp4` and spot-checks frames.
 
-Each video is a sequence of 5-10 second real-world scenes (oceans, city timelapses, animals, weather) drawn entirely in code, with audio-driven psychedelic effects layered on top. Each run creates a new project with scenes no other video has used.
+Each video is a psychedelic trip drawn entirely in code: 5-10 second scenes that start from real subjects (animals, oceans, volcanoes, storms), morph into each other, and drift into abstraction, with heavy audio-driven effects throughout. Each run creates a new project with scenes no other video has used.
 
 ## Layout
 
