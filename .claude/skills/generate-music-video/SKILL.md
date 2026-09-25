@@ -141,18 +141,18 @@ Project-specific wiring for `projects/<slug>/index.html`:
 
 ```bash
 npx hyperframes lint projects/<slug>
-npx hyperframes check projects/<slug>
-npx hyperframes snapshot projects/<slug> --at 1,<pre-drop>,<post-drop>,<mid>,<end-1> --no-end --describe false
+npx hyperframes check projects/<slug> --no-browser-gpu
+npx hyperframes snapshot projects/<slug> --at 1,<pre-drop>,<post-drop>,<mid>,<end-1> --no-end --describe false --no-browser-gpu
 ```
 
 Fix every lint error and every layout and contrast issue from `check`, including contrast warnings. Then look at the snapshot PNGs in `projects/<slug>/snapshots/`, which is much cheaper than a render. Fix anything wrong and snapshot again. When the frames look right, render:
 
 ```bash
 mkdir -p output
-npx hyperframes render projects/<slug> -o output/<slug>.mp4 --quality standard --quiet
+npx hyperframes render projects/<slug> -o output/<slug>.mp4 --quality standard --no-browser-gpu --crf 20
 ```
 
-(If several renders run at once, add `--workers 3` to each.) Then verify the actual video:
+**CPU only:** always pass `--no-browser-gpu` to `check`, `snapshot` and `render` (the user wants the GPU left alone), and never pass `--gpu`. `--crf 20` keeps a 30s video around 15-30 MB instead of ~180 MB. If several renders run at once, add `--workers 3` to each. Then verify the actual video:
 
 1. `ffprobe` the MP4: duration matches `SONG.duration` (±0.1s) and there is an audio stream.
 2. Pull 5-6 frames with ffmpeg into `projects/<slug>/qa/`: 1s in, just before and just after the first drop, the middle, and 1s before the end. Look at them (Read the PNGs). Blank frames, overflowing text, or a drop that doesn't look different from the build-up are bugs. Fix them and re-render.
