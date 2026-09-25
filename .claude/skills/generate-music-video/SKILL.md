@@ -127,7 +127,7 @@ Project-specific wiring for `projects/<slug>/index.html`:
 - Don't let the same property on the same element be driven by both the per-frame `draw` and a tween. Split them across a wrapper and its child.
 - Give every scene `.clip` explicit `position:absolute; inset:0`. Without it the clip can collapse into the top-left corner and `check` reports confusing overlaps. Because clips then fill the frame, scaling a clip pivots on the frame's center: set `transformOrigin` explicitly or scale an inner element.
 - Stacked display lines need `line-height` of at least 1.1, or `check` reports text overlapping.
-- Motion that is supposed to leave the frame or overlap (wipes, fly-offs) gets flagged by `check`. Mark those elements with `data-layout-allow-overflow` / `data-layout-allow-occlusion` / `data-layout-allow-overlap` (the last one covers text that appears in both scenes during a crossfade) rather than changing the design.
+- Motion that is supposed to leave the frame or overlap (wipes, fly-offs) gets flagged by `check`. Mark those elements with `data-layout-allow-overflow` / `data-layout-allow-occlusion` / `data-layout-allow-overlap` (the last one covers text that appears in both scenes during a crossfade) rather than changing the design. Put the attribute on the element being flagged: when a vignette or flash overlay sits above the title, `text_occluded` is fixed by marking the **text**, not the overlay.
 - The compiler moves body scripts into `<head>`, so code that looks up `#root` or other elements when the script first runs finds nothing. Look up or create elements in a `DOMContentLoaded` handler, or define them in HTML and only query them inside timeline callbacks.
 - SVG filters (lighting, blur, turbulence) on an SVG that is scaled up render blurry and blocky. Draw large shapes at their real pixel size instead of scaling a small viewBox.
 - Audio-reactive bans (from the HyperFrames guide): no equalizer bars, spectrum analyzers, waveforms, music-note clip art, particle fields that aren't part of the scene, white strobes on every beat, or abstract pulsing orbs. Audio drives *behavior*; the scene decides *what's on screen*.
@@ -135,7 +135,7 @@ Project-specific wiring for `projects/<slug>/index.html`:
 - Visuals must be drawn in the page with CSS, SVG, canvas or WebGL. No footage, photos or generated images. A registry block (`hyperframes-registry` skill) is fine for an effect such as a shader transition or grain.
 - Build one scene per `<div class="clip">` (or per sub-composition in `compositions/` if `index.html` gets unwieldy). Put the psychedelic layer on a wrapper around the scene (a filter or overlay), so it can ramp up and down without touching the scene's own animation.
 - Deterministic randomness: a seeded PRNG (mulberry32), never `Math.random()`.
-- A single large `index.html` triggers the lint warning `composition_file_too_large`. It's harmless and can be ignored.
+- A single large `index.html` triggers the lint warnings `composition_file_too_large` and `timeline_track_too_dense`. Both are harmless and can be ignored.
 - `energy_per_second` is more detailed than `sections`. Check it for silence (values near 0), such as a song that ends early, so you don't animate over nothing.
 
 ## 6. Check, preview, render, verify
