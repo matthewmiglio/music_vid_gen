@@ -49,7 +49,7 @@ Run it on the **clip** (`audio.wav`), not the full song. It's cheaper, and it de
 python "C:/Users/matt/.claude/skills/analyze-audio/analyze_audio.py" projects/<slug>/audio.wav --question "Describe this track for a music-video director: genre and subgenre, mood and emotional arc, vocal presence and delivery (and any lyrics you can make out), standout sounds, how the energy moves across the clip, and the textures, materials, colors, shapes and motions it evokes (not scenes or locations). Be concrete." > projects/<slug>/gemini-analysis.md
 ```
 
-(Only stdout goes to the file; token usage prints on stderr.) Treat its key, chord and plugin claims as guesses (the numbers from step 2 win). Trust it on mood, genre and texture.
+(Only stdout goes to the file; token usage prints on stderr.) Treat its key, chord and plugin claims as guesses (the numbers from step 2 win). Trust it on mood, genre and texture. Ignore any settings, locations or camera moves it suggests anyway (it keeps offering "late-night driving", "wet asphalt" and neon); those lead straight to the banned journey look.
 
 ## 4. Choose the concept
 
@@ -78,7 +78,7 @@ Diversity across the whole library matters more than any single video. The failu
 | `photo-sequence` | A found-photo or film-contact-sheet look: frames, sprocket holes, date stamps, flash exposures, developing prints. | static, flat |
 | `journey-pov` | Moving through a space (road, tunnel, street, corridor). **Only when every other archetype is used, and never with night + rain + neon signs.** | forward motion |
 
-Also vary these from the most recent project (check its DESIGN.md): **light vs dark canvas** (use a light canvas at least one time in three), **camera** (static/flat vs moving), and **main color**.
+Also vary these from the most recent project (`ls -t projects | head -2`, then read its DESIGN.md): **light vs dark canvas** (use a light canvas at least one time in three), **camera** (static/flat vs moving), and **main color**.
 
 ### 4b. Rules for every concept
 
@@ -91,7 +91,7 @@ Write `projects/<slug>/DESIGN.md` before any HTML (the HyperFrames skill require
 
 - `## Concept`: one paragraph. A specific idea within the archetype that comes from **how the song sounds and feels** (Gemini's mood and texture notes, tempo, energy, key). For example, a slow, dark, detuned track as `macro-material` could be black ink bleeding through wet paper, with each 808 hit pushing a new bloom outward. Not "abstract shapes that pulse".
 - `## Colors`: 3-5 hex values with roles, taken from the mood (dark and slowed → deep, desaturated; bright pop → saturated).
-- `## Typography`: 1-2 families. Prefer the fonts the renderer has built in, which work with no setup: Montserrat, Oswald, League Gothic, Archivo Black, Space Mono, IBM Plex Mono, JetBrains Mono, Source Code Pro, Noto Sans JP (see `hyperframes-creative/references/typography.md`). For anything else, copy a `.ttf` into `projects/<slug>/fonts/` and declare it with `@font-face`, or lint fails with `font_family_without_font_face`.
+- `## Typography`: 1-2 families. Prefer these fonts, which work with no setup (some are built in; the rest are fetched from Google Fonts automatically at check and render time): Montserrat, Oswald, League Gothic, Archivo Black, Space Mono, IBM Plex Mono, JetBrains Mono, Source Code Pro, Noto Sans JP (see `hyperframes-creative/references/typography.md`). For anything else, copy a `.ttf` into `projects/<slug>/fonts/` and declare it with `@font-face`, or lint fails with `font_family_without_font_face`.
 - `## Timeline`: a table mapping the clip's timeline to scenes. Scene cuts land on **downbeats**. The biggest visual change lands on the **first drop** (or the highest-energy section start when there's no drop). Breakdowns get stripped-back visuals. Scene length follows tempo: roughly 2-4 bars per scene at 30s, longer for ambient songs.
 - `## Audio mapping`: which signal drives which property (e.g. `bands[0-1]` bass → background scale, `rms` → glow, `accents` → flash or shake, `beats` → small pulse on the title, `chord_changes` → color shift).
 - `## What NOT to Do`: include the audio-reactive bans below plus 2-3 concept-specific ones.
@@ -134,7 +134,8 @@ Project-specific wiring for `projects/<slug>/index.html`:
 
 - Write `data-duration` as the literal number from `SONG.duration`; attributes can't read JS.
 - Don't let the same property on the same element be driven by both the per-frame `draw` and a tween. Split them across a wrapper and its child.
-- The framework sizes `.clip` elements to the full frame, so scaling a clip pivots on the frame's center. Set `transformOrigin` explicitly, or scale an inner element.
+- Give every scene `.clip` explicit `position:absolute; inset:0`. Without it the clip can collapse into the top-left corner and `check` reports confusing overlaps. Because clips then fill the frame, scaling a clip pivots on the frame's center: set `transformOrigin` explicitly or scale an inner element.
+- Stacked display lines need `line-height` of at least 1.1, or `check` reports text overlapping.
 - Motion that is supposed to leave the frame or overlap (wipes, fly-offs) gets flagged by `check`. Mark those elements with `data-layout-allow-overflow` / `data-layout-allow-occlusion` rather than changing the design.
 - SVG filters (lighting, blur, turbulence) on an SVG that is scaled up render blurry and blocky. Draw large shapes at their real pixel size instead of scaling a small viewBox.
 - Audio-reactive bans (from the HyperFrames guide): no equalizer bars, spectrum analyzers, waveforms, music-note clip art, generic particle fields, rainbow cycling, white strobes on every beat, or abstract pulsing orbs. Audio drives *behavior*; the concept drives *what's on screen*.
