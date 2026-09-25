@@ -127,7 +127,8 @@ Project-specific wiring for `projects/<slug>/index.html`:
 - Don't let the same property on the same element be driven by both the per-frame `draw` and a tween. Split them across a wrapper and its child.
 - Give every scene `.clip` explicit `position:absolute; inset:0`. Without it the clip can collapse into the top-left corner and `check` reports confusing overlaps. Because clips then fill the frame, scaling a clip pivots on the frame's center: set `transformOrigin` explicitly or scale an inner element.
 - Stacked display lines need `line-height` of at least 1.1, or `check` reports text overlapping.
-- Motion that is supposed to leave the frame or overlap (wipes, fly-offs) gets flagged by `check`. Mark those elements with `data-layout-allow-overflow` / `data-layout-allow-occlusion` rather than changing the design.
+- Motion that is supposed to leave the frame or overlap (wipes, fly-offs) gets flagged by `check`. Mark those elements with `data-layout-allow-overflow` / `data-layout-allow-occlusion` / `data-layout-allow-overlap` (the last one covers text that appears in both scenes during a crossfade) rather than changing the design.
+- The compiler moves body scripts into `<head>`, so code that looks up `#root` or other elements when the script first runs finds nothing. Look up or create elements in a `DOMContentLoaded` handler, or define them in HTML and only query them inside timeline callbacks.
 - SVG filters (lighting, blur, turbulence) on an SVG that is scaled up render blurry and blocky. Draw large shapes at their real pixel size instead of scaling a small viewBox.
 - Audio-reactive bans (from the HyperFrames guide): no equalizer bars, spectrum analyzers, waveforms, music-note clip art, particle fields that aren't part of the scene, white strobes on every beat, or abstract pulsing orbs. Audio drives *behavior*; the scene decides *what's on screen*.
 - Text: the song title (from the filename, cleaned up) belongs somewhere, usually the intro. Keep text pulses to 3-6% scale; backgrounds can swing 10-30%.
@@ -152,7 +153,7 @@ mkdir -p output
 npx hyperframes render projects/<slug> -o output/<slug>.mp4 --quality standard --no-browser-gpu --crf 20
 ```
 
-**CPU only:** always pass `--no-browser-gpu` to `check`, `snapshot` and `render` (the user wants the GPU left alone), and never pass `--gpu`. `--crf 20` keeps a 30s video around 15-30 MB instead of ~180 MB. If several renders run at once, add `--workers 3` to each. Then verify the actual video:
+**CPU only:** always pass `--no-browser-gpu` to `check`, `snapshot` and `render` (the user wants the GPU left alone), and never pass `--gpu`. `--crf 20` roughly halves file size (a grainy 30s video came out at ~90 MB instead of ~180 MB); raise it to 23-26 if files are still too big. If several renders run at once, add `--workers 3` to each. Then verify the actual video:
 
 1. `ffprobe` the MP4: duration matches `SONG.duration` (±0.1s) and there is an audio stream.
 2. Pull 5-6 frames with ffmpeg into `projects/<slug>/qa/`: 1s in, just before and just after the first drop, the middle, and 1s before the end. Look at them (Read the PNGs). Blank frames, overflowing text, or a drop that doesn't look different from the build-up are bugs. Fix them and re-render.
