@@ -142,7 +142,7 @@ npx hyperframes check projects/<slug> --no-browser-gpu
 npx hyperframes snapshot projects/<slug> --at 1,<pre-drop>,<post-drop>,<mid>,<end-1> --no-end --describe false --no-browser-gpu
 ```
 
-Heavy scenes can take over 10s to load when rendering on the CPU, and `snapshot` then fails with "Navigation timeout of 10000 ms" (its `--timeout` flag doesn't change that limit). Prefix the command with `PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS=90000`.
+(With no drop, use the highest-energy moment in place of the drop.) Heavy scenes can take over 10s to load when rendering on the CPU, and `snapshot` then fails with "Navigation timeout of 10000 ms" (its `--timeout` flag doesn't change that limit). Prefix the command with `PRODUCER_PAGE_NAVIGATION_TIMEOUT_MS=90000`.
 
 Fix every lint error and every layout and contrast issue from `check`, including contrast warnings. Then look at the snapshot PNGs in `projects/<slug>/snapshots/`, which is much cheaper than a render. Fix anything wrong and snapshot again. When the frames look right, render:
 
