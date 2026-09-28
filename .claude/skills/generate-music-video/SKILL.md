@@ -1,15 +1,16 @@
 ---
 name: generate-music-video
-description: Turn a song file into a rendered, beat-synced HyperFrames music video made of code-drawn psychedelic scenes that start from real subjects (animals, oceans, volcanoes) and morph into each other. Analyzes the song (scripts/analyze_song.py + /analyze-audio), picks scenes that fit it, builds a new project in projects/, renders it to output/. Use when the user runs /generate-music-video <song> [length], or asks to make a music video / visualizer for a song.
+description: Turn a song file into a rendered, beat-synced HyperFrames music video drawn entirely in code, in a named visual style from docs/styles/ (psychedelic by default, or realism). Analyzes the song (scripts/analyze_song.py + /analyze-audio), picks scenes that fit it, builds a new project in projects/, renders it to output/. Use when the user runs /generate-music-video <song> [length] [style], or asks to make a music video / visualizer for a song.
 ---
 
 # generate-music-video
 
 ```
-/generate-music-video <path to song> [length]
+/generate-music-video <path to song> [length] [style]
 ```
 
 - `length`: default `30` (seconds). Also accepts `whole` / `whole song`, a number of seconds (`45`), or `M:SS` (`1:15`).
+- `style`: the name of a file in `docs/styles/` (currently `psychedelic`, the default, and `realism`). The user may say it in words ("make it realistic").
 - The user may also say where to start ("start at 1:12"). Pass that as `--start`.
 
 All paths below are relative to the repo root (the folder holding this `.claude/`).
@@ -53,40 +54,33 @@ python "C:/Users/matt/.claude/skills/analyze-audio/analyze_audio.py" projects/<s
 
 ## 4. Choose the concept
 
-### 4a. The look: psychedelic trips that start from real scenes, drawn in code
+### 4a. Load the style
 
-Every video is a **psychedelic sequence of 5-10 second scenes that starts from real-world subjects**: an ocean swell breaking, a bear rearing up and roaring, a volcano erupting, a goshawk striking, whales breaching, a thunderstorm, a wolf pack in snow, the northern lights. The real subject is the **starting point**. From there the video should feel like a trip: subjects melt, mutate and morph into each other, and the frame is allowed to drift into full abstract psychedelia before a new subject comes into focus. **Psychedelic comes first; realism is optional.**
-
-- **Morphing is the core device.** Animals and objects turn into other animals and objects on screen: a heron's wings stretch into a stag's antlers, a whale's tail unfurls into a wave that becomes a flock of birds, a volcano's ash plume curls into a dragon or wolf. Use morphs for most scene changes instead of plain crossfades (shape interpolation between SVG paths, pixels melting through a displacement field, a kaleidoscope folding one subject into the next, or a silhouette filling with the next creature). Plan the morph chain in DESIGN.md.
-- **Heavy psychedelic treatment the whole way through**, not only on the drop. Stack two to four treatments, driven by the audio: liquid warping (SVG `feTurbulence` + `feDisplacementMap`, or a WebGL warp), kaleidoscope and mirror symmetry, chromatic RGB split, hue cycling and gradient maps, echo and feedback trails, solarizing, fractal zooms, breathing and pulsing edges, moiré and interference shimmer, and melting drips. Start at a strong level and go wild on the drop. This overrides the HyperFrames guide's "no rainbow color cycling" rule.
-- **Abstract psychedelic moments are welcome**, such as a kaleidoscope bloom, a fractal tunnel, or liquid color fields between subjects. What's still out is *flat* geometry with no trip in it: plain op-art patterns, Swiss-style shapes, and text-only frames.
-- **Detailed and stylized in every frame.** The best video so far worked because every frame was intriguing: dense detail, a strong stylized look, and several things happening at once. Aim for that. The styles that fit are psychedelic poster art, 70s album covers, visionary art (Alex Grey-style glowing anatomy), ukiyo-e crossed with neon, and stained glass. Not flat clip art, not cute, and not a plain nature illustration.
-- **Drawn in code, never footage.** Build everything from layered SVG, canvas 2D and/or Three.js/WebGL (the `hyperframes-animation` skill has a Three.js adapter). No stock video, no photos, no AI-generated images.
-- **Heavy animation inside every scene**, not only camera moves: jaws open, wings beat, waves break, plumes boil. Rig creatures from separate parts (jaw, head, wings, legs) that rotate around their hinges. Something in the frame is always moving.
-- **Scene cuts and morphs land on downbeats.** Count the scenes to fit: about 3-6 for a 30-second clip, more for a whole song. **Put the most spectacular moment on the first drop**: the biggest morph, the roar, the eruption.
+Read `docs/styles/<style>.md` now. It defines the look, the technique, the subjects that work, and extra DESIGN.md sections. **Where it conflicts with anything below, the style doc wins.**
 
 ### 4b. Vary the scenes across the library
 
-1. Run `grep -h "^Scenes:" projects/*/DESIGN.md` to see which subjects other videos already used, across **all** songs.
-2. Don't reuse a subject from any other project (so no second bear, no second ocean). **Exception: revising a video.** When the user asks to redo or push further on an earlier video, copy that project to the next version number, keep what they liked, and reuse its subjects freely. Only other songs' subjects are off limits. Also vary the palette and the time of day from the most recent project (`ls -t projects | head -2`, then read its DESIGN.md).
-3. Choose subjects whose energy matches the song: a slow, heavy, dark track suggests a storm rolling in or a bear waking in a cave, while fast bright energy suggests a stampede or a city at rush hour. Use Gemini's mood and imagery notes.
+1. See which subjects other videos in the **same style** already used: `grep -l "^Style: <style>" projects/*/DESIGN.md | xargs grep -h "^Scenes:"`.
+2. Don't reuse a subject from another project in the same style (so no second bear, no second ocean). **Exception: revising a video.** When the user asks to redo or push further on an earlier video, copy that project to the next version number, keep what they liked, and reuse its subjects freely. Also vary the palette and the time of day from the most recent project (`ls -t projects | head -2`, then read its DESIGN.md).
+3. Choose subjects whose energy matches the song: a slow, heavy, dark track suggests a storm rolling in, while fast bright energy suggests a stampede or crashing surf. Use Gemini's mood and imagery notes.
 
 ### 4c. Rules for every concept
 
-- **Don't base the concept on the song title.** File names are working titles and are usually meaningless or misleading. Only use the title when it names something concrete and visual, such as a place ("japan" can suggest a Tokyo skyline or Mount Fuji). Titles like "luvme", "safe2" or "clams" must not drive the imagery: no hearts for a song called "luv", and no clams for "clams". Putting the title on screen as text is fine.
-- **No childish or cute looks.** Avoid cartoon mascots, big-eyed cute animals, balloon or inflatable shapes, bouncy squash-and-stretch toys, candy or pastel-toy palettes and bubble fonts. The bear should be terrifying, not a teddy. Aim for album art, a film title sequence or a design-studio reel: stylish, confident and adult.
+- **Don't base the concept on the song title.** File names are working titles and are usually meaningless or misleading. Only use the title when it names something concrete and visual, such as a place ("japan" can suggest Mount Fuji or a Japanese coastline). Titles like "luvme", "safe2" or "clams" must not drive the imagery: no hearts for a song called "luv", and no clams for "clams". Putting the title on screen as text is fine.
+- **No childish or cute looks.** Avoid cartoon mascots, big-eyed cute animals, balloon or inflatable shapes, bouncy squash-and-stretch toys, candy or pastel-toy palettes and bubble fonts. Aim for album art, a film title sequence or a design-studio reel: stylish, confident and adult.
 - **No night-drive clichés:** no first-person trip down a road or tunnel at night past rain and neon signs.
 
 ### 4d. Write DESIGN.md
 
-Write `projects/<slug>/DESIGN.md` before any HTML (the HyperFrames skill requires it). The first line must be `Scenes: <comma-separated subjects>` (e.g. `Scenes: grizzly bear, glacier calving, aurora`). If other videos are being made at the same time, write this line first, then run the grep from 4b again before building, and change subjects if there's a clash.
+Write `projects/<slug>/DESIGN.md` before any HTML (the HyperFrames skill requires it). The first two lines must be `Style: <style>` and `Scenes: <comma-separated subjects>` (e.g. `Scenes: storm front, lightning, ocean swell`). If other videos are being made at the same time, write these lines first, then run the grep from 4b again before building, and change subjects if there's a clash.
 
-- `## Concept`: one paragraph on the scene sequence, the **morph chain** (what turns into what, and when), and the psychedelic treatments, and why they fit how the song **sounds and feels** (Gemini's notes, tempo, energy, key).
+- `## Concept`: one paragraph on the scene sequence and why it fits how the song **sounds and feels** (Gemini's notes, tempo, energy, key), plus whatever the style doc asks for.
 - `## Colors`: 3-5 hex values with roles, taken from the mood.
 - `## Typography`: 1-2 families for the title and any text. Prefer these fonts, which work with no setup (some are built in; the rest are fetched from Google Fonts automatically at check and render time): Montserrat, Oswald, League Gothic, Archivo Black, Space Mono, IBM Plex Mono, JetBrains Mono, Source Code Pro, Noto Sans JP (see `hyperframes-creative/references/typography.md`). For anything else, copy a `.ttf` into `projects/<slug>/fonts/` and declare it with `@font-face`, or lint fails with `font_family_without_font_face`.
-- `## Timeline`: a table of scenes, each with start and end time (on downbeats), the subject, what moves in it, how it morphs into the next scene, and the psychedelic level (1-3; never 0). The biggest moment lands on the **first drop** (or the highest-energy section start when there's no drop). Breakdowns drift into slower, dreamier abstraction rather than going plain.
-- `## Audio mapping`: which signal drives which property (e.g. bass `bands[0-1]` → ground shake and displacement strength, `rms` → treatment intensity, `accents` → lightning or a camera jolt, `beats` → wave pulses, `chord_changes` → hue shift).
+- `## Timeline`: a table of scenes, each with start and end time (on downbeats), the subject, what moves in it, and the transition to the next. The biggest moment lands on the **first drop** (or the highest-energy section start when there's no drop).
+- `## Audio mapping`: which signal drives which property (e.g. bass `bands[0-1]` → camera shake, `rms` → effect intensity, `accents` → lightning, `beats` → wave hits, `chord_changes` → color shift).
 - `## What NOT to Do`: include the audio-reactive bans below plus 2-3 concept-specific ones.
+- Any extra sections the style doc lists.
 
 ## 5. Build the composition
 
@@ -131,11 +125,11 @@ Project-specific wiring for `projects/<slug>/index.html`:
 - Motion that is supposed to leave the frame or overlap (wipes, fly-offs) gets flagged by `check`. Mark those elements with `data-layout-allow-overflow` / `data-layout-allow-occlusion` / `data-layout-allow-overlap` (the last one covers text that appears in both scenes during a crossfade) rather than changing the design. Put the attribute on the element being flagged: when a vignette or flash overlay sits above the title, `text_occluded` is fixed by marking the **text**, not the overlay.
 - The compiler moves body scripts into `<head>`, so code that looks up `#root` or other elements when the script first runs finds nothing. Look up or create elements in a `DOMContentLoaded` handler, or define them in HTML and only query them inside timeline callbacks.
 - SVG filters (lighting, blur, turbulence) on an SVG that is scaled up render blurry and blocky. Draw large shapes at their real pixel size instead of scaling a small viewBox.
-- Audio-reactive bans (from the HyperFrames guide): no equalizer bars, spectrum analyzers, waveforms, music-note clip art, particle fields that aren't part of the scene, white strobes on every beat, or abstract pulsing orbs. Audio drives *behavior*; the scene decides *what's on screen*.
+- Audio-reactive bans (from the HyperFrames guide; the style doc can relax them): no equalizer bars, spectrum analyzers, waveforms, music-note clip art, particle fields that aren't part of the scene, white strobes on every beat, or abstract pulsing orbs. Audio drives *behavior*; the scene decides *what's on screen*.
 - Text: the song title (from the filename, cleaned up) belongs somewhere, usually the intro. Keep text pulses to 3-6% scale; backgrounds can swing 10-30%.
-- Visuals must be drawn in the page with CSS, SVG, canvas or WebGL. No footage, photos or generated images. A registry block (`hyperframes-registry` skill) is fine for an effect such as a shader transition or grain.
-- **Psychedelic pass: start from `templates/psychedelic-post.js`.** Copy it into the project. It is a WebGL2 shader that runs fine without a GPU. Draw each scene to its own canvas, then every frame call `POST.render(sceneCanvasA, sceneCanvasB, params)` onto one full-frame output canvas (`POST.init(canvas)` once). The stack it covers: mirror symmetry, kaleidoscope, fractal zoom, liquid warp, morphs between two scenes (`mixT` + `mode`: noise melt, burn-through, upward smoke melt), RGB split, echo trails, neon edges, hue cycle, gradient map, solarize, grain and vignette. Read the uniform list at the top for parameter names. Every parameter must be computed from time and audio data only. The faint SVG filters used before were too weak to read as psychedelic. Keep the kaleidoscope and fractal-zoom strength moderate while a creature is on screen, because at full strength they turn it to mush; for "many copies of the animal", draw rotated copies in 2D instead. Solarize or inversion combined with hue cycling easily washes frames out into muddy pastels, so keep the darks dark. Clamp every canvas `arc`/`ellipse` radius to at least 0: a negative radius throws, the frame silently repeats the previous one, and `check` doesn't catch it.
-- Build one scene per `<div class="clip">` (or per sub-composition in `compositions/` if `index.html` gets unwieldy). Put the psychedelic layer on a wrapper around the scene (a filter or overlay), so it can ramp up and down without touching the scene's own animation.
+- Visuals must be drawn in the page with CSS, SVG, canvas or WebGL. No footage, photos or generated images (the style doc may allow specific CC0 assets such as HDRI skies or textures). A registry block (`hyperframes-registry` skill) is fine for an effect such as a shader transition or grain.
+- Technique for the look itself (effects passes, shaders, what works on CPU) is in the style doc.
+- Build one scene per `<div class="clip">` (or per sub-composition in `compositions/` if `index.html` gets unwieldy). Put any full-frame effects layer on a wrapper around the scenes, so it can ramp up and down without touching the scenes' own animation.
 - Deterministic randomness: a seeded PRNG (mulberry32), never `Math.random()`.
 - A single large `index.html` triggers the lint warnings `composition_file_too_large` and `timeline_track_too_dense`. Both are harmless and can be ignored.
 - `energy_per_second` is more detailed than `sections`. Check it for silence (values near 0), such as a song that ends early, so you don't animate over nothing.
@@ -157,7 +151,7 @@ mkdir -p output
 npx hyperframes render projects/<slug> -o output/<slug>.mp4 --quality standard --no-browser-gpu --crf 24
 ```
 
-**CPU only:** always pass `--no-browser-gpu` to `check`, `snapshot` and `render` (the user wants the GPU left alone), and never pass `--gpu`. `--crf 24` keeps grainy 30s videos well under the ~180 MB default (crf 20 gave ~80-90 MB); go to 26 if still too big. If several renders run at once, add `--workers 3` to each. Expect 4-15 minutes per 30s on CPU: a WebGL post pass is fast, but many SVG filters are slow. Then verify the actual video:
+**CPU only:** always pass `--no-browser-gpu` to `check`, `snapshot` and `render` (the user wants the GPU left alone), and never pass `--gpu`. `--crf 24` keeps grainy 30s videos well under the ~180 MB default (crf 20 gave ~80-90 MB); go to 26 if still too big. If several renders run at once, add `--workers 3` to each. Expect 4-15 minutes per 30s on CPU for drawn scenes (a WebGL post pass is fast; many SVG filters are slow), and longer for raymarched realism. Then verify the actual video:
 
 1. `ffprobe` the MP4: duration matches `SONG.duration` (±0.1s) and there is an audio stream.
 2. Pull 5-6 frames with ffmpeg into `projects/<slug>/qa/`: 1s in, just before and just after the first drop, the middle, and 1s before the end. Look at them (Read the PNGs). Blank frames, overflowing text, or a drop that doesn't look different from the build-up are bugs. Fix them and re-render.
@@ -168,4 +162,4 @@ mkdir -p projects/<slug>/qa && ffmpeg -y -loglevel error -ss <t> -i output/<slug
 
 ## 7. Report
 
-Tell the user: output path, clip window used (start → end in the song), BPM/key, the scene list, the psychedelic treatment, and what happens on the drop. Don't open the video for them; they'll open it themselves.
+Tell the user: output path, clip window used (start → end in the song), BPM/key, the style, the scene list, the key technique, and what happens on the drop. Don't open the video for them; they'll open it themselves.

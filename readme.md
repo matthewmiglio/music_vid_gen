@@ -6,6 +6,7 @@ Turn a song into a beat-synced music video with Claude Code + [HyperFrames](http
 /generate-music-video E:/my_files/my_music/luvme.wav          # 30s clip (default)
 /generate-music-video E:/my_files/my_music/luvme.wav 1:00     # 60s clip
 /generate-music-video E:/my_files/my_music/luvme.wav whole    # entire song
+/generate-music-video E:/my_files/my_music/luvme.wav 30 realism   # a different style
 ```
 
 What the skill does:
@@ -15,13 +16,14 @@ What the skill does:
 3. **Picks the scenes** and writes them to the project's `DESIGN.md`: subjects, psychedelic treatment, palette, fonts, and a timeline with scene cuts on bar lines and the biggest moment on the drop.
 4. **Builds a HyperFrames project** in `projects/<song>-v<N>/`, lints and checks it, then **renders** to `output/<song>-v<N>.mp4` and spot-checks frames.
 
-Each video is a psychedelic trip drawn entirely in code: 5-10 second scenes that start from real subjects (animals, oceans, volcanoes, storms), morph into each other, and drift into abstraction, with heavy audio-driven effects throughout. Each run creates a new project with scenes no other video has used.
+Every video is drawn entirely in code in one of the styles in `docs/styles/`. The default, psychedelic, is a trip: 5-10 second scenes that start from real subjects (animals, oceans, volcanoes, storms), morph into each other, and drift into abstraction, with heavy audio-driven effects throughout. Each run creates a new project with scenes no other video has used.
 
 ## Layout
 
 ```
 .claude/skills/generate-music-video/SKILL.md   the project-level skill
 scripts/analyze_song.py                        song analysis tool
+docs/styles/                                   visual styles (psychedelic = default, realism)
 templates/psychedelic-post.js                  WebGL2 psychedelic effects pass (works without a GPU)
 projects/                                      one HyperFrames project per video
 output/                                        rendered MP4s (git-ignored)
