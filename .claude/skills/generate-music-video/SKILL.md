@@ -34,7 +34,7 @@ It prints a summary and writes to the project:
 | File | Contents |
 | --- | --- |
 | `analysis.json` | Everything about the whole song: BPM, beats, downbeats, key, chords per bar, loudness (LUFS), stereo, timbre, band balance, sections, drops, breakdowns, accents, energy per second, and the `clip` window. |
-| `song-data.js` | `window.SONG` (clip-relative seconds: `beats`, `downbeats`, `drops`, `breakdowns`, `accents`, `sections`, `chord_changes`, `energy_per_second`, `bpm`, `bar_seconds`, `key`, `title`) and `window.AUDIO_DATA` (`fps`, `totalFrames`, `frames[i].rms`, `frames[i].bands[0..15]`, bass to treble, 0-1). |
+| `song-data.js` | `window.SONG` (clip-relative seconds; `beats` and `downbeats` are plain numbers, while `drops`, `breakdowns` and `accents` are objects with a `t` field: `beats`, `downbeats`, `drops`, `breakdowns`, `accents`, `sections`, `chord_changes`, `energy_per_second`, `bpm`, `bar_seconds`, `key`, `title`) and `window.AUDIO_DATA` (`fps`, `totalFrames`, `frames[i].rms`, `frames[i].bands[0..15]`, bass to treble, 0-1). |
 | `audio.wav` | The trimmed clip with short fades. This is the video's soundtrack. |
 
 Sanity-check the summary before building:
